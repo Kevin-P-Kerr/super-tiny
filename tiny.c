@@ -133,17 +133,30 @@ void SkipWhite(void) {
 		Block();
 		Match('e');
 }*/
+//Parse and Translate A Not Factor
+void NotFactor(void) {
+	printf("Here is a not factor\n");
+	GetChar();
+}
+
+// Parse and Translate a Boolean  And Operation
+void AndOp(void) {
+	Match('&');
+	NotFactor();
+	printf("\tAND %%ebx, %%ecx\n");	
+}
+
 // Parse and Translate a Boolean Term
-	BoolTerm() {
-//	if (Look == '&') 
-		printf("Here is a Boolean Term\n");
-		GetChar();
+void BoolTerm(void) {
+	NotFactor();
+	if (Look == '&') 
+		AndOp();
 }
 // Parsre and Translate A Boolean OR
 	void OrOp(void) {
 		Match('|');
 		BoolTerm();
-		printf("\tOR %%ebx, %%eax");
+		printf("\tOR %%ebx, %%eax\n");
 }	
 
 //Parse and Translate a Boolean Expression
