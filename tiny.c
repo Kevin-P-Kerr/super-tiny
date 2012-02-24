@@ -1,9 +1,9 @@
 #include <stdio.h>
 // IO Stuff Here
 // The Lookahead Character
-int Look;
+char Look;
 // The Encoded Token This Should Be Global
-int Token;
+char Token;
 // The Unencoded Token Not Sure If This Should Be Global
 // char Value[];
 
@@ -38,24 +38,6 @@ int IsAlphNum(void) {
 	else
 		return 1;
 }
-
-void GetString(char s[]) {
-       int i = 0;
-	while (IsAlphNum == '0') {
-		s[i] = Look;
-		i = ++i;
-		GetChar();
-}
-}
-void GetNum(char s[]) {
-	int i = 0;
-	while (IsDigit == '0') {
-		s[i] = Look;
-		i = ++i;
-		GetChar();
-}
-}
-
 int IsWhite(void) {
 	if ((Look == ' ') || ((Look == '\t') || (Look == '\n')))
 		return 0;
@@ -68,39 +50,78 @@ void SkipWhite(void) {
 		GetChar();
 }
 }
-// Parse A Math Term
-void Term(void) {
-	Factor();
-	if (Look == '*')
-		Multiply();
-	else if (Look == '/');
-		Divide();
-	
+// The Parser Proper
 
-
-// Arithmetical Statements
-// Parse An Addition Or Subtraction
-void Add(void) {
-		Match('+');
-		Match('(');
-		Expression();
-		Match(')');
-		printf("add %%eax, %%ebx\n");
+// Parse and Translate Variables 
+	void Variables(void) {
+		Match('v');
+		printf("variable stub\n");
+		while (Look != 'e') {
+			GetChar();
 }
-		
-void Subtract(void) {
-	Match('-');
-	Match('(');
-	Expression();
-	Match(')');
-	printf("sub %%ebc, %%eax");
-
-// Parse A Mathematical Expression
-void Expression(void) {
-	Term();
-	if (Look == '+')
-		AddOp;
-	else if (Look == '-')
-		Subtract();
 }
+// Parse and Translate an IF statement
+	void DoIf(void) {
+		Match('i');
+		printf("IF STUB\n");
+		while (Look != 'l') 
+			GetChar();
+		Match('l');
+		Block();
+		Match('e');
+}
+// Parse and Translate a While Stateement
+	void DoWhile(void) {
+		Match('w');
+		while (Look != 'e')
+			GetChar();
+		Block();
+		Match('e');
+}
+// Parse and Translate a For Statement
+	void DoFor(void) {
+		Match('f');
+		while (Look != 'e') 
+			GetChar();
+		Block();
+		Match('e');
+}
+//Parse and Translate a Boolean Expression
+	void BoolExpression(void) {
+		printf("Here is a boolean expression\n");
+		GetChar();
+}
+
+//Parse and Translate a Program Block
+	void Block(void) {
+		Match('b');
+		if (Look == 'v')
+			Variables();
+		else if (Look == 'i')
+			DoIf();
+		else if (Look == 'w')
+			DoWhile();
+		else if (Look == 'f')
+			DoFor();
+		while (Look != 'e') 
+			BoolExpression();
+		Match('e');
+}
+// Init
+	void Init(void) {
+		GetChar();
+}
+			
+
+// A program is an EOF, or it is a block
+void DoProgram(void) {
+	while (Look != 'e') 
+		Block();
+	printf("The program is finished");
+}
+
+// Main
+ main() {
+	Init();
+	DoProgram();
 }
