@@ -99,7 +99,7 @@ void SkipWhite(void) {
 		BoolExpression();
 		printf("\tjne ");
 		PlaceLabel(lab);
-		while (Look != 'l') 
+		while (Look != 't') 
 			GetChar();
 		Match('l');
 		Block();
@@ -133,10 +133,42 @@ void SkipWhite(void) {
 		Block();
 		Match('e');
 }*/
+void Expression(void) {
+	printf("EXP\n");
+	GetChar();
+}
+
+// Parse and Translate A relation
+void Relation(void) {
+	Expression();
+	Match('q');
+	Expression();
+	printf("\tcmp %%ecx, %%ebx\n");
+}
+
+// Parse and Translate A Boolean Factor
+void BoolFactor(void) {
+	if (Look == 'T') {
+		printf("\tmov1 $-1, %%ecx\n");
+		Match('T');
+}
+	else if (Look == 'F') {
+		printf("\tmovel $0, %%ecx\n");
+		Match('F');
+}
+	else
+		Relation();
+}
+
 //Parse and Translate A Not Factor
 void NotFactor(void) {
-	printf("Here is a not factor\n");
-	GetChar();
+	if (Look == '~') {
+		Match('~');
+		BoolFactor();
+		printf("\tNOT %%ecx\n");
+}
+	else
+		BoolFactor();
 }
 
 // Parse and Translate a Boolean  And Operation
