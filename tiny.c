@@ -58,6 +58,12 @@ void SkipWhite(void) {
 	void PutLabel(int lab) {
 		printf(".L%d", lab);
 }
+// Place a Label and new line
+	void PlaceLabel(int lab) {
+		PutLabel(lab);
+		printf("\n");
+}
+
 // Get A Lable
 	int GetLabel(void) {
 		int i = LabNum;
@@ -91,15 +97,13 @@ void SkipWhite(void) {
 		lab = GetLabel();
 		Match('i');
 		BoolExpression();
-		printf("\tJNE ");
-		PutLabel(lab);
-		printf("\n");
+		printf("\tjne ");
+		PlaceLabel(lab);
 		while (Look != 'l') 
 			GetChar();
 		Match('l');
 		Block();
-		PutLabel(lab); 
-		printf(":\n");
+		PlaceLabel(lab);
 		Match('e');
 }
 // Parse and Translate a While Statement
@@ -109,27 +113,46 @@ void SkipWhite(void) {
 		lab = GetLabel();
 		scndlab = GetLabel();
 		Match('w');
-		PutLabel(lab);
-		printf("\n");
+		PlaceLabel(lab);
 		BoolExpression();
+		printf("\tjne");
+		PlaceLabel(scndlab);
 		Block();
-		printf("\t jmp  ");
-		PutLabel(lab);
-		printf("\n");
+		printf("\tjmp");
+		PlaceLabel(lab);
+		PlaceLabel(scndlab);
 		Match('e');
 }
+	
+
 // Parse and Translate a For Statement
-	void DoFor(void) {
+/*	void DoFor(void) {
 		Match('f');
 		while (Look != 'e') 
 			GetChar();
 		Block();
 		Match('e');
+}*/
+// Parse and Translate a Boolean Term
+	BoolTerm() {
+//	if (Look == '&') 
+		printf("Here is a Boolean Term\n");
+		GetChar();
 }
+// Parsre and Translate A Boolean OR
+	void OrOp(void) {
+		Match('|');
+		BoolTerm();
+		printf("\tOR %%ebx, %%eax");
+}	
+
 //Parse and Translate a Boolean Expression
 	void BoolExpression(void) {
-		printf("Here is a boolean expression\n");
-		GetChar();
+		BoolTerm();
+		if (Look == '|') {
+		//	printf("\tpush %%eax\n\tmove1 %%ebx, %%eax");
+			OrOp();
+}
 }
 
 //Parse and Translate a Program Block
@@ -141,8 +164,8 @@ void SkipWhite(void) {
 			DoIf();
 		else if (Look == 'w')
 			DoWhile();
-		else if (Look == 'f')
-			DoFor();
+	//	else if (Look == 'f')
+	//		DoFor();
 		while (Look != 'e') 
 			BoolExpression();
 		Match('e');
