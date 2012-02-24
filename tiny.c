@@ -56,7 +56,7 @@ void SkipWhite(void) {
 }
 // Put A Label
 	void PutLabel(int lab) {
-		printf("L:%d", lab);
+		printf(".L%d", lab);
 }
 // Get A Lable
 	int GetLabel(void) {
@@ -91,18 +91,31 @@ void SkipWhite(void) {
 		lab = GetLabel();
 		Match('i');
 		BoolExpression();
+		printf("\tJNE ");
+		PutLabel(lab);
+		printf("\n");
 		while (Look != 'l') 
 			GetChar();
 		Match('l');
 		Block();
-		PutLabel(lab);
+		PutLabel(lab); 
+		printf(":\n");
 		Match('e');
 }
 // Parse and Translate a While Statement
 	void DoWhile(void) {
+		int lab;
+		int scndlab;
+		lab = GetLabel();
+		scndlab = GetLabel();
 		Match('w');
+		PutLabel(lab);
+		printf("\n");
 		BoolExpression();
 		Block();
+		printf("\t jmp  ");
+		PutLabel(lab);
+		printf("\n");
 		Match('e');
 }
 // Parse and Translate a For Statement
