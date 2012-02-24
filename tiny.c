@@ -1,6 +1,11 @@
 #include <stdio.h>
+// IO Stuff Here
 // The Lookahead Character
-char Look;
+int Look;
+// The Encoded Token This Should Be Global
+int Token;
+// The Unencoded Token Not Sure If This Should Be Global
+// char Value[];
 
 void GetChar(void) {
 	Look = getchar();
@@ -35,19 +40,20 @@ int IsAlphNum(void) {
 }
 
 void GetString(char s[]) {
-	i = 0;
+       int i = 0;
 	while (IsAlphNum == '0') {
 		s[i] = Look;
 		i = ++i;
 		GetChar();
 }
-
+}
 void GetNum(char s[]) {
-	i = 0;
-	while (IsNum == '0') {
+	int i = 0;
+	while (IsDigit == '0') {
 		s[i] = Look;
 		i = ++i;
 		GetChar();
+}
 }
 
 int IsWhite(void) {
@@ -62,7 +68,39 @@ void SkipWhite(void) {
 		GetChar();
 }
 }
-
+// Parse A Math Term
+void Term(void) {
+	Factor();
+	if (Look == '*')
+		Multiply();
+	else if (Look == '/');
+		Divide();
 	
 
 
+// Arithmetical Statements
+// Parse An Addition Or Subtraction
+void Add(void) {
+		Match('+');
+		Match('(');
+		Expression();
+		Match(')');
+		printf("add %%eax, %%ebx\n");
+}
+		
+void Subtract(void) {
+	Match('-');
+	Match('(');
+	Expression();
+	Match(')');
+	printf("sub %%ebc, %%eax");
+
+// Parse A Mathematical Expression
+void Expression(void) {
+	Term();
+	if (Look == '+')
+		AddOp;
+	else if (Look == '-')
+		Subtract();
+}
+}
