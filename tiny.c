@@ -6,6 +6,8 @@ char Look;
 char Token;
 // Variable List
 char VarList[90];
+// Label Number
+int LabNum = 0;
 // The Unencoded Token Not Sure If This Should Be Global
 // char Value[];
 
@@ -52,6 +54,17 @@ void SkipWhite(void) {
 		GetChar();
 }
 }
+// Put A Label
+	void PutLabel(int lab) {
+		printf("L:%d", lab);
+}
+// Get A Lable
+	int GetLabel(void) {
+		int i = LabNum;
+		LabNum = ++LabNum;
+		return i;
+}
+		
 // The Parser Proper
 
 // Parse and Translate Variables 
@@ -60,33 +73,35 @@ void SkipWhite(void) {
 		int i;
 		i = 0;
 		Match('v');
-		printf("push1 %%epb\n" "Mov1 %%esp, ebp\n");
+		printf("\tpushl %%epb\n" "\tmovl %%esp, %%ebp\n");
 		while(Look != 'e') {
 			VarList[i] = Look;
 			i = ++i;
 			GetChar();
 }
 		offset = ((4 * i) + 4);
-		printf("sub1 $%d, %%esp\n", offset);
+		printf("\tsubl $%d, %%esp\n", offset);
 		Match('e');
 		
 }
 
 // Parse and Translate an IF statement
 	void DoIf(void) {
+		int lab;
+		lab = GetLabel();
 		Match('i');
-		printf("IF STUB\n");
+		BoolExpression();
 		while (Look != 'l') 
 			GetChar();
 		Match('l');
 		Block();
+		PutLabel(lab);
 		Match('e');
 }
 // Parse and Translate a While Statement
 	void DoWhile(void) {
 		Match('w');
-		while (Look != 'e')
-			GetChar();
+		BoolExpression();
 		Block();
 		Match('e');
 }
@@ -125,7 +140,7 @@ void SkipWhite(void) {
 }
 			
 
-// A program is an EOF, or it is a block
+// A program is an 'e', or it is a block
 void DoProgram(void) {
 	while (Look != 'e') 
 		Block();
