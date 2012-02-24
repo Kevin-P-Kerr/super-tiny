@@ -4,6 +4,8 @@
 char Look;
 // The Encoded Token This Should Be Global
 char Token;
+// Variable List
+char VarList[90];
 // The Unencoded Token Not Sure If This Should Be Global
 // char Value[];
 
@@ -54,12 +56,22 @@ void SkipWhite(void) {
 
 // Parse and Translate Variables 
 	void Variables(void) {
+		int offset;
+		int i;
+		i = 0;
 		Match('v');
-		printf("variable stub\n");
-		while (Look != 'e') {
+		printf("push1 %%epb\n" "Mov1 %%esp, ebp\n");
+		while(Look != 'e') {
+			VarList[i] = Look;
+			i = ++i;
 			GetChar();
 }
+		offset = ((4 * i) + 4);
+		printf("sub1 $%d, %%esp\n", offset);
+		Match('e');
+		
 }
+
 // Parse and Translate an IF statement
 	void DoIf(void) {
 		Match('i');
@@ -70,7 +82,7 @@ void SkipWhite(void) {
 		Block();
 		Match('e');
 }
-// Parse and Translate a While Stateement
+// Parse and Translate a While Statement
 	void DoWhile(void) {
 		Match('w');
 		while (Look != 'e')
