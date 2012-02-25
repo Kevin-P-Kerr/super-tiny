@@ -42,6 +42,20 @@ int IsAlphNum(void) {
 	else
 		return 1;
 }
+
+void GetNum(void) {
+	int i;
+	i = 0;
+	char numlist[100];
+	while (IsDigit == 0) {
+		numlist[i] = Look;
+		i = ++i;
+		GetChar();
+}
+	printf("%s  ", numlist);
+	GetChar();
+}
+		
 int IsWhite(void) {
 	if ((Look == ' ') || ((Look == '\t') || (Look == '\n')))
 		return 0;
@@ -72,16 +86,65 @@ void SkipWhite(void) {
 }
 		
 // The Parser Proper
-// Parse and Translate A relation
+//Parse and Translate A Factor
+void Factor(void) {
+	printf("Factor\n");
+	GetNum();
+}
+//Parse and Translate a Mulop
+void MulOp(void) {
+	 if (Look == '*') {
+		Match('*');
+		Factor();
+		printf("multiply stuff\n");
+}
+	else if (Look == '/') {
+		Match('/');
+		Factor();
+		printf("divide stuff\n");
+}
+}
+//Parse and Translate A Term
+void Term(void) {
+	printf("Term");
+	Factor();
+	if ((Look == '*') || (Look == '/')) 
+		MulOp();
+}	
+
+// Parse and Translate An AddOp
+void AddOp(void) {
+	if (Look == '+') {
+		Match('+');
+		Term();	
+		printf("addstuff\n");
+		GetChar();
+}
+	else if (Look == '-') {
+		Match('-');
+		Term();
+		printf("substract stuff");
+		GetChar();
+}
+}
+			
+
+// Parse and Translate A Expression
 void Expression(void) {
-	printf("EXP\n");
-	GetChar();
+	printf("Expression\n");
+	Term();
+	if ((Look == '+') || (Look =='-'))
+		AddOp();
 }
 
+
 void Relation(void) {
+	printf("Relation\n");
 	Expression();
 	Match('q');
 	Expression();
+}
+
 
 // Parse and Translate A Boolean Factor
 void BoolFactor(void) {
@@ -136,6 +199,55 @@ void BoolTerm(void) {
 			OrOp();
 }
 }
+
+
+// Parse and Translate Variables 
+	void Variables(void) {
+		int offset;
+		int i;
+		i = 0;
+		Match('v');
+		while(Look != 'e') {
+			VarList[i] = Look;
+			i = ++i;
+			GetChar();
+}
+		offset = ((4 * i) + 4);
+		Match('e');
+		
+}
+
+// Parse and Translate an IF statement
+	void DoIf(void) {
+		int lab;
+		lab = GetLabel();
+		Match('i');
+		BoolExpression();
+		PlaceLabel(lab);
+		while (Look != 't') 
+			GetChar();
+		Match('l');
+		Block();
+		PlaceLabel(lab);
+		Match('e');
+}
+// Parse and Translate a While Statement
+	void DoWhile(void) {
+		int lab;
+		int scndlab;
+		lab = GetLabel();
+		scndlab = GetLabel();
+		Match('w');
+		PlaceLabel(lab);
+		BoolExpression();
+		PlaceLabel(scndlab);
+		Block();
+		printf("\tjmp");
+		PlaceLabel(lab);
+		PlaceLabel(scndlab);
+		Match('e');
+}
+	
 //Parse and Translate a Program Block
 	void Block(void) {
 		Match('b');
@@ -165,4 +277,8 @@ void DoProgram(void) {
 	printf("The program is finished");
 }
 
-
+// Main
+ main() {
+	Init();
+	DoProgram();
+}
