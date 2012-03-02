@@ -1,17 +1,16 @@
 # SIMPLE: A Simple Programming Language I Am Designing
 
-keywords = ('IF', 'THEN', 'ELSE' )
-tokens = keywords +  ('ID','PLUS', 'NUMBER', 'MINUS', 'TIMES', 'DIVIDE', 'RPAREN', 'LPAREN', 'LT', 'GT', 'EQ', 'NE', 'LE', 'GE', 'AND', 'OR', 'NOT')
+reserved =  { 'if' : 'IF', 'then' : 'THEN', 'else' : 'ELSE',}
+tokens = list(reserved.values()) +  ['ID','PLUS', 'NUMBER', 'MINUS', 'TIMES', 'DIVIDE', 'RPAREN', 'LPAREN', 'LT', 'GT', 'EQ', 'NE', 'LE', 'GE', 'AND', 'OR', 'NOT']
 
 # tokens
 
-t_ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
 t_PLUS = r'\+'
 t_MINUS = r'-'
 t_TIMES = r'\*'
 t_DIVIDE = r'/'
-t_RPAREN = r'\('
-t_LPAREN = r'\)'
+t_LPAREN = r'\('
+t_RPAREN = r'\)'
 t_LT = r'<'
 t_GT = r'>'
 t_EQ = r'='
@@ -21,6 +20,14 @@ t_GE = r'>='
 t_AND = r'&'
 t_OR = r'\|'
 t_NOT = r'!!'
+t_IF = r'IF'
+t_THEN = r'THEN'
+t_ELSE = r'ELSE'
+
+def t_ID(t):
+	r'[a-zA-Z_][a-zA-Z_0-9]*'
+	t.type = reserved.get(t.value, 'ID') #check for reserved words
+	return t
 
 def t_NUMBER(t):
 	r'\d+'
@@ -46,6 +53,7 @@ lex.lex()
 
 precedence = (
 		('left', 'PLUS', 'MINUS', 'TIMES', 'DIVIDE'),
+		('left', 'AND', 'OR'),
 #		('right', 'UMINUS'),
 		)
 
@@ -58,59 +66,69 @@ def p_statement_assign(p):
 	ids[p[1]] = p[3]
 
 def p_statement_if(p):
-	'statement : IF boolexpr THEN statement ELSE statement'
-	if p[2] == 0 : p[0] = p[6]
-	elif p[2] == 1 : p[0] = p[4]
+	'statement : IF LPAREN boolexpr RPAREN THEN LPAREN expr RPAREN ELSE LPAREN expr RPAREN'
+	if p[3] == 0 : print(p[11])
+	elif p[3] == 1 : print(p[7])
 
 def p_statement_expr(p):
 	'statement : expr'
 	print(p[1])
 
 
-
-
 def p_boolexpr(p):
-	'''boolexpr : relexpr AND relexpr
-		    | LPAREN boolexpr RPAREN 
-	if p[1] == 1 and p[3] == 1 : p[0] = 1
-
-	
-
-def p_relexpr_lt(p):
-	'relexpr : expr LT expr'
-	if p[1] < p[3] : p[0] == 1
+	'''boolexpr :  boolexpr AND boolexpr
+                    |  boolexpr OR boolexpr'''
+	if (len(p) > 1):
+		if p[2] == 'OR':
+			if p[1] == 1 or p[3] == 1 : p[0] = 1
+			else:
+				p[0] = 0 
+		elif p[2] == 'AND':
+			if p[1] == 0 or p[3] == 0 : p[0] = 0
+			else:
+				p[0] = 1
 	else:
-		p[0] == 0
+		p[0] = p[1]
+
+def p_bool(p):
+	'boolexpr : boolfactor'
+	p[0] = p[1]
+			
+def p_boolfactor_lt(p):
+	'boolfactor : expr LT expr'
+	if p[1] < p[3] : p[0] = 1
+	else:
+		p[0] = 0
 
 def p_relexpr_gt(p):
-	'relexpr : expr GT expr'
-	if p[1] > p[3] : p[0] == 1
+	'boolfactor : expr GT expr'
+	if p[1] > p[3] : p[0] = 1
 	else:
-		p[0] == 0
+		p[0] = 0
 
 def p_relexpr_eq(p):
-	'relexpr : expr EQ expr'
-	if p[1] == p[3] : p[0] == 1
+	'boolfactor : expr EQ expr'
+	if p[1] == p[3] : p[0] = 1
 	else:
-		p[0] == 0
+		p[0] = 0
 
 def p_relexpr_neq(p):
-	'relexpr : expr NE expr'
-	if p[1] == p[3] : p[0] == 0
+	'boolfactor : expr NE expr'
+	if p[1] == p[3] : p[0] = 0
 	else:
-		p[0] == 1
+		p[0] = 1
 
 def p_relexpr_le(p):
-	'relexpr : expr LE expr'
-	if p[1] <= p[0] : p[0] == 1
+	'boolfactor : expr LE expr'
+	if p[1] <= p[0] : p[0] = 1
 	else:
-		p[0] == 0
+		p[0] = 0
 
 def p_relexpr_ge(p):
-	'relexpr : expr GE expr'
-	if p[1] >= p[3] : p[0] == 1
+	'boolfactor : expr GE expr'
+	if p[1] >= p[3] : p[0] = 1
 	else:
-		p[0] == 0
+		p[0] = 0
 
 def p_expr_add(p):
 	'expr : expr PLUS expr'
@@ -128,13 +146,14 @@ def p_expr_divide(p):
 	'expr : expr DIVIDE expr'
 	p[0] = p[1] / p[3]
 
+#def p_expr_bool(p):
+#	'expr : boolfactor'
+#	p[0] = p[1]
+
 def p_expr_number(p):
 	'expr : NUMBER'
 	p[0] = p[1]
 
-def p_expr_bool(p):
-	'expr : boolexpr'
-	p[0] = p[1]
 
 def p_expr_id(p):
 	'expr : ID'
